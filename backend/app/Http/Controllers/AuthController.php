@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
@@ -58,5 +59,28 @@ class AuthController extends Controller
             'token' => $token,
             'message' => 'User logged in successfully',
         ], 201);
+    }
+
+    public function logoutUser(Request $request)
+    {
+        // DB::table('personal_access_tokens')
+        //     ->where('tokenable_id', $request->userId)
+        //     ->delete();
+
+        $access_token = $request->bearerToken();
+        $token = PersonalAccessToken::findToken($access_token);
+
+        if (!$token) {
+            return response()->json(['message' => 'Invalid token'], 401);
+        }
+
+        $token->delete();
+
+        return response(['message' => 'user logged out !'], 200);
+    }
+
+    public function userIsLoggedIn(Request $request)
+    {
+        return response(['success' => true], 200);
     }
 }
